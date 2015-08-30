@@ -91,6 +91,11 @@ namespace Pastr
             _items.Clear();
         }
 
+        public IEnumerable<string> Items
+        {
+            get { return _items; }
+        }
+
         private async Task<string> Copy()
         {
             await _events.InvokeCopyAsync();
@@ -127,16 +132,6 @@ namespace Pastr
                 Clipboard.SetText(value);
                 return value;
             });
-        }
-
-        internal string DEBUG_GetItems()
-        {
-            var output = new StringBuilder();
-
-            foreach (var item in _items)
-                output.AppendLine(item ?? "");
-
-            return output.ToString();
         }
     }
 }

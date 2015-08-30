@@ -1,8 +1,9 @@
 ﻿<Window x:Class="Pastr.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="350" Width="525">
+        Background="Black"
+        Title="Pastr" Height="462" Width="326">
     <Grid>
-        <TextBox x:Name="textEvents" AcceptsReturn="True" IsReadOnly="True"/>
+        <ListBox x:Name="listItems" Foreground="White" Background="{x:Null}" FontSize="20" FontFamily="Segoe UI"/>
     </Grid>
 </Window>

@@ -55,7 +55,14 @@ namespace Pastr
 
         void _timer_Tick(object sender, EventArgs e)
         {
-            textEvents.Text = _storage.DEBUG_GetItems();
+            listItems.Items.Clear();
+
+            int i = 1;
+            foreach (var item in _storage.Items)
+            {
+                listItems.Items.Add(i.ToString() + ". " + new String(item.Take(30).ToArray()));
+                ++i;
+            }
         }
 
         public void ShowApp()
