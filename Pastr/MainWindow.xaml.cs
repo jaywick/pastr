@@ -38,7 +38,7 @@ namespace Pastr
             //this.Hide();
 
             _timer = new DispatcherTimer();
-            _timer.Interval = TimeSpan.FromMilliseconds(100);
+            _timer.Interval = TimeSpan.FromMilliseconds(10);
             _timer.Tick += _timer_Tick;
             _timer.Start();
 
@@ -47,10 +47,18 @@ namespace Pastr
             _trayIcon = new TrayIcon(this);
 
             _events.OnInvokeDrop += _storage.Drop;
-            _events.OnInvokePush += _storage.Push;
-            _events.OnInvokePoke += _storage.Poke;
+            _events.OnInvokeExpire += _storage.Expire;
             _events.OnInvokePeek += _storage.Peek;
+            _events.OnInvokePoke += _storage.Poke;
+            _events.OnInvokePinch += _storage.Pinch;
             _events.OnInvokePop += _storage.Pop;
+            _events.OnInvokePush += _storage.Push;
+            _events.OnInvokeShunt += _storage.Shunt;
+            _events.OnInvokeReverse += _storage.Reverse;
+            _events.OnInvokeRotateLeft += _storage.RotateLeft;
+            _events.OnInvokeRotateRight += _storage.RotateRight;
+            _events.OnInvokeSwap += _storage.Swap;
+            _events.OnInvokeWipe += _storage.Wipe;
         }
 
         void _timer_Tick(object sender, EventArgs e)

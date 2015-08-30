@@ -22,12 +22,25 @@ namespace Pastr
         public async void Poke()
         {
             var value = await Copy();
+
+            if (!_items.Any())
+            {
+                Push();
+                return;
+            }
+
+            _items.First.Value = value;
+        }
+
+        public async void Shunt()
+        {
+            var value = await Cut();
             _items.AddFirst(value);
         }
 
         public async void Push()
         {
-            var value = await Cut();
+            var value = await Copy();
             _items.AddFirst(value);
         }
 
@@ -89,6 +102,11 @@ namespace Pastr
         public void Wipe()
         {
             _items.Clear();
+        }
+
+        public void Pinch()
+        {
+            _items = new LinkedList<string>(_items.Take(1));
         }
 
         public IEnumerable<string> Items

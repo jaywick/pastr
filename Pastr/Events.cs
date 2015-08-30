@@ -13,9 +13,19 @@ namespace Pastr
     {
         public event Action OnInvokeDrop;
         public event Action OnInvokePush;
+        public event Action OnInvokeShunt;
         public event Action OnInvokePoke;
         public event Action OnInvokePeek;
         public event Action OnInvokePop;
+        public event Action OnInvokeExpire;
+        public event Action OnInvokePinch;
+        public event Action OnInvokeWipe;
+        public event Action OnInvokeSwap;
+        public event Action OnInvokeRotateLeft;
+        public event Action OnInvokeRotateRight;
+        public event Action OnInvokeReverse;
+
+        private Dictionary<string, Action> _shortcutCallbackMap;
 
         private NamedPipeServer<string> _server;
         private AutoHotkey.Interop.AutoHotkeyEngine _ahkEngine;
@@ -31,11 +41,21 @@ namespace Pastr
             _server.Start();
 
             _ahkEngine = new AutoHotkey.Interop.AutoHotkeyEngine();
-            _ahkEngine.ExecRaw("^+z::Run,Pastr.Messaging.exe drop");
-            _ahkEngine.ExecRaw("^+x::Run,Pastr.Messaging.exe push");
-            _ahkEngine.ExecRaw("^+c::Run,Pastr.Messaging.exe poke");
-            _ahkEngine.ExecRaw("^+v::Run,Pastr.Messaging.exe peek");
-            _ahkEngine.ExecRaw("^+b::Run,Pastr.Messaging.exe pop");
+            _shortcutCallbackMap = new Dictionary<string, Action>();
+            ReserveHotKey("^+z", () => OnInvokeDrop.SafeInvoke());
+            ReserveHotKey("^+x", () => OnInvokeShunt.SafeInvoke());
+            ReserveHotKey("^+c", () => OnInvokePush.SafeInvoke());
+            ReserveHotKey("^+v", () => OnInvokePeek.SafeInvoke());
+            ReserveHotKey("^+b", () => OnInvokePop.SafeInvoke());
+            ReserveHotKey("^+a", () => OnInvokeExpire.SafeInvoke());
+            ReserveHotKey("^+s", () => OnInvokePinch.SafeInvoke());
+            ReserveHotKey("^+d", () => OnInvokeWipe.SafeInvoke());
+            ReserveHotKey("^+w", () => OnInvokeSwap.SafeInvoke());
+            ReserveHotKey("^+f", () => OnInvokePoke.SafeInvoke());
+            ReserveHotKey("^+q", () => OnInvokeRotateLeft.SafeInvoke());
+            ReserveHotKey("^+e", () => OnInvokeRotateRight.SafeInvoke());
+            ReserveHotKey("^+r", () => OnInvokeReverse.SafeInvoke());
+            RegisterHotKeys();
         }
 
         ~Events()
@@ -44,58 +64,66 @@ namespace Pastr
                 _server.Stop();
         }
 
+        private void ReserveHotKey(string shortcut, Action callback)
+        {
+            _shortcutCallbackMap.Add(shortcut, callback);
+        }
+
+        private void RegisterHotKeys()
+        {
+            var script = new StringBuilder();
+
+            foreach (var hotkey in _shortcutCallbackMap.Keys)
+                script.AppendLine(String.Format("{0}::Run,Pastr.Messaging.exe {0}", hotkey));
+
+            _ahkEngine.ExecRaw(script.ToString());
+        }
+
         private void server_ClientMessage(NamedPipeConnection<string, string> connection, string message)
         {
-            switch (message)
+            if (!_shortcutCallbackMap.ContainsKey(message))
             {
-                case "drop":
-                    OnInvokeDrop.SafeInvoke();
-                    break;
-                case "push":
-                    OnInvokePush.SafeInvoke();
-                    break;
-                case "poke":
-                    OnInvokePoke.SafeInvoke();
-                    break;
-                case "peek":
-                    OnInvokePeek.SafeInvoke();
-                    break;
-                case "pop":
-                    OnInvokePop.SafeInvoke();
-                    break;
-                case "sentcopy":
-                    _sentCopyToken.Cancel();
-                    break;
-                case "sentcut":
-                    _sentCutToken.Cancel();
-                    break;
-                case "sentpaste":
-                    _sentPasteToken.Cancel();
-                    break;
-                default:
-                    break;
+                switch (message)
+                {
+                    case "sentcopy":
+                        _sentCopyToken.Cancel();
+                        break;
+                    case "sentcut":
+                        _sentCutToken.Cancel();
+                        break;
+                    case "sentpaste":
+                        _sentPasteToken.Cancel();
+                        break;
+                    default:
+                        break;
+                }
             }
+
+            _shortcutCallbackMap[message].Invoke();
         }
 
         public async Task InvokeCopyAsync()
         {
             _sentCopyToken = new CancellationTokenSource();
             _ahkEngine.ExecRaw("SendInput ^c\nRun,Pastr.Messaging.exe sentcopy");
-            await Task.Delay(100, _sentCopyToken.Token);
+
+            await _sentCopyToken.Wait();
         }
 
         public async Task InvokeCutAsync()
         {
             _sentCutToken = new CancellationTokenSource();
             _ahkEngine.ExecRaw("SendInput ^x\nRun,Pastr.Messaging.exe sentcut");
-            await Task.Delay(100, _sentCutToken.Token);
+
+            await _sentCutToken.Wait();
         }
 
         public async Task InvokePasteAsync()
         {
             _sentPasteToken = new CancellationTokenSource();
             _ahkEngine.ExecRaw("SendInput ^v\nRun,Pastr.Messaging.exe sentpaste");
-            await Task.Delay(100, _sentPasteToken.Token);
+
+            await _sentPasteToken.Wait();
         }
     }
 }
