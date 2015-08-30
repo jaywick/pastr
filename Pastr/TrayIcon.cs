@@ -8,13 +8,13 @@ using WinForms = System.Windows.Forms;
 
 namespace Pastr
 {
-    public class SystemTrayIcon
+    public class TrayIcon
     {
         private MainWindow mainWindow;
         private WinForms.NotifyIcon notifyIcon;
         private string _versionInfo;
 
-        public SystemTrayIcon(MainWindow parent)
+        public TrayIcon(MainWindow parent)
         {
             mainWindow = parent;
 
@@ -26,6 +26,7 @@ namespace Pastr
             notifyIcon.Visible = true;
             notifyIcon.Text = _versionInfo;
             notifyIcon.ContextMenu = CreateSystemTrayContextMenu();
+            notifyIcon.Disposed += (s, e) => Remove();
         }
 
         private WinForms.ContextMenu CreateSystemTrayContextMenu()

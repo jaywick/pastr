@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pastr", "Pastr\Pastr.csproj", "{701C2A89-786B-4D4F-97E6-5E507A12D0CB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pastr.Messaging", "Pastr.Messaging\Pastr.Messaging.csproj", "{F5EB7801-F271-4A70-946B-D7736CF9999B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{701C2A89-786B-4D4F-97E6-5E507A12D0CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{701C2A89-786B-4D4F-97E6-5E507A12D0CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{701C2A89-786B-4D4F-97E6-5E507A12D0CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5EB7801-F271-4A70-946B-D7736CF9999B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5EB7801-F271-4A70-946B-D7736CF9999B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5EB7801-F271-4A70-946B-D7736CF9999B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5EB7801-F271-4A70-946B-D7736CF9999B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

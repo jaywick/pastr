@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NamedPipeWrapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Pastr
 {
@@ -20,9 +22,10 @@ namespace Pastr
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Manager _manager;
-        private SystemTrayIcon _trayIcon;
-        private List<HotKey> _hotkeys;
+        private Storage _storage;
+        private TrayIcon _trayIcon;
+        private Events _events;
+        private DispatcherTimer _timer;
 
         public MainWindow()
         {
@@ -30,41 +33,29 @@ namespace Pastr
             Start();
         }
 
-        ~MainWindow()
-        {
-            if (_trayIcon != null)
-                _trayIcon.Remove();
-
-            if (_hotkeys != null)
-                _hotkeys.ForEach(x => x.Dispose());
-        }
-
         private void Start()
         {
             //this.Hide();
 
-            _manager = new Manager();
-            _trayIcon = new SystemTrayIcon(this);
-            _hotkeys = new List<HotKey>();
-            
-            RegisterHotKey(KeyModifier.Alt, Key.Z, _manager.Drop);
-            RegisterHotKey(KeyModifier.Alt, Key.X, _manager.Push);
-            RegisterHotKey(KeyModifier.Alt, Key.C, _manager.Poke);
-            RegisterHotKey(KeyModifier.Alt, Key.V, _manager.Peek);
-            RegisterHotKey(KeyModifier.Alt, Key.B, _manager.Pop);
+            _timer = new DispatcherTimer();
+            _timer.Interval = TimeSpan.FromMilliseconds(100);
+            _timer.Tick += _timer_Tick;
+            _timer.Start();
+
+            _events = new Events();
+            _storage = new Storage(_events);
+            _trayIcon = new TrayIcon(this);
+
+            _events.OnInvokeDrop += _storage.Drop;
+            _events.OnInvokePush += _storage.Push;
+            _events.OnInvokePoke += _storage.Poke;
+            _events.OnInvokePeek += _storage.Peek;
+            _events.OnInvokePop += _storage.Pop;
         }
 
-        private void RegisterHotKey(KeyModifier modifiers, Key key, Action action)
+        void _timer_Tick(object sender, EventArgs e)
         {
-            var hotkey = new HotKey(key, modifiers);
-            hotkey.Activated += async () =>
-            {
-                action();
-                await Task.Delay(150);
-                textEvents.Text = _manager.DEBUG_GetItems();
-            };
-
-            _hotkeys.Add(hotkey);
+            textEvents.Text = _storage.DEBUG_GetItems();
         }
 
         public void ShowApp()

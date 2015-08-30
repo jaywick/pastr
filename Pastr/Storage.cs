@@ -2,14 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Pastr
 {
-    public class Manager
+    public class Storage
     {
         private LinkedList<string> _items = new LinkedList<string>();
+        private Events _events;
+
+        public Storage(Events events)
+        {
+            _events = events;
+        }
 
         public async void Poke()
         {
@@ -25,6 +32,9 @@ namespace Pastr
 
         public async void Peek()
         {
+            if (!_items.Any())
+                return;
+
             var value = _items.First.Value;
             await Paste(value);
         }
@@ -82,29 +92,72 @@ namespace Pastr
 
         private async Task<string> Copy()
         {
-            SendKeys.SendWait("^{c}");
+            _events.InvokeCopy();
             await Task.Delay(100);
-            return CurrentClipboard;
+            return GetCurrentClipboard();
         }
 
         private async Task<string> Cut()
         {
-            SendKeys.SendWait("^{x}");
+            _events.InvokeCut();
             await Task.Delay(100);
-            return CurrentClipboard;
+            return GetCurrentClipboard();
         }
 
         private async Task Paste(string data)
         {
-            CurrentClipboard = data;
+            SetCurrentClipboard(data);
             await Task.Delay(100);
-            SendKeys.SendWait("^{v}");
+            _events.InvokePaste();
         }
 
-        private string CurrentClipboard
+        private string GetCurrentClipboard()
         {
-            get { return Clipboard.GetText(); }
-            set { Clipboard.SetText(value); }
+            string data = null;
+            Exception threadEx = null;
+
+            var staThread = new Thread(() =>
+            {
+                try
+                {
+                    data = Clipboard.GetText();
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+            staThread.SetApartmentState(ApartmentState.STA);
+            staThread.Start();
+            staThread.Join();
+
+            return data;
+        }
+
+        private void SetCurrentClipboard(string value)
+        {
+            Exception threadEx = null;
+
+            var staThread = new Thread(() =>
+            {
+                try
+                {
+                    if (String.IsNullOrEmpty(value))
+                    {
+                        Clipboard.Clear();
+                        return;
+                    }
+
+                    Clipboard.SetText(value);
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+            staThread.SetApartmentState(ApartmentState.STA);
+            staThread.Start();
+            staThread.Join();
         }
 
         internal string DEBUG_GetItems()
