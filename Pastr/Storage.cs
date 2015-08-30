@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Pastr.Extensions;
 
 namespace Pastr
 {
@@ -92,72 +93,40 @@ namespace Pastr
 
         private async Task<string> Copy()
         {
-            _events.InvokeCopy();
-            await Task.Delay(100);
+            await _events.InvokeCopyAsync();
             return GetCurrentClipboard();
         }
 
         private async Task<string> Cut()
         {
-            _events.InvokeCut();
-            await Task.Delay(100);
+            await _events.InvokeCutAsync();
             return GetCurrentClipboard();
         }
 
         private async Task Paste(string data)
         {
             SetCurrentClipboard(data);
-            await Task.Delay(100);
-            _events.InvokePaste();
+            await _events.InvokePasteAsync();
         }
 
         private string GetCurrentClipboard()
         {
-            string data = null;
-            Exception threadEx = null;
-
-            var staThread = new Thread(() =>
-            {
-                try
-                {
-                    data = Clipboard.GetText();
-                }
-                catch (Exception ex)
-                {
-                    threadEx = ex;
-                }
-            });
-            staThread.SetApartmentState(ApartmentState.STA);
-            staThread.Start();
-            staThread.Join();
-
-            return data;
+            return Common.RunInSTA(() => Clipboard.GetText());
         }
 
         private void SetCurrentClipboard(string value)
         {
-            Exception threadEx = null;
-
-            var staThread = new Thread(() =>
+            Common.RunInSTA(() =>
             {
-                try
+                if (String.IsNullOrEmpty(value))
                 {
-                    if (String.IsNullOrEmpty(value))
-                    {
-                        Clipboard.Clear();
-                        return;
-                    }
+                    Clipboard.Clear();
+                    return "";
+                }
 
-                    Clipboard.SetText(value);
-                }
-                catch (Exception ex)
-                {
-                    threadEx = ex;
-                }
+                Clipboard.SetText(value);
+                return value;
             });
-            staThread.SetApartmentState(ApartmentState.STA);
-            staThread.Start();
-            staThread.Join();
         }
 
         internal string DEBUG_GetItems()

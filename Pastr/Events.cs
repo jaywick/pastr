@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Pastr.Extensions;
 
 namespace Pastr
 {
@@ -18,6 +19,10 @@ namespace Pastr
 
         private NamedPipeServer<string> _server;
         private AutoHotkey.Interop.AutoHotkeyEngine _ahkEngine;
+
+        private CancellationTokenSource _sentCopyToken;
+        private CancellationTokenSource _sentCutToken;
+        private CancellationTokenSource _sentPasteToken;
 
         public Events()
         {
@@ -58,24 +63,39 @@ namespace Pastr
                 case "pop":
                     OnInvokePop.SafeInvoke();
                     break;
+                case "sentcopy":
+                    _sentCopyToken.Cancel();
+                    break;
+                case "sentcut":
+                    _sentCutToken.Cancel();
+                    break;
+                case "sentpaste":
+                    _sentPasteToken.Cancel();
+                    break;
                 default:
                     break;
             }
         }
 
-        public void InvokeCopy()
+        public async Task InvokeCopyAsync()
         {
-            _ahkEngine.ExecRaw("SendInput ^c");
+            _sentCopyToken = new CancellationTokenSource();
+            _ahkEngine.ExecRaw("SendInput ^c\nRun,Pastr.Messaging.exe sentcopy");
+            await Task.Delay(100, _sentCopyToken.Token);
         }
 
-        public void InvokeCut()
+        public async Task InvokeCutAsync()
         {
-            _ahkEngine.ExecRaw("SendInput ^x");
+            _sentCutToken = new CancellationTokenSource();
+            _ahkEngine.ExecRaw("SendInput ^x\nRun,Pastr.Messaging.exe sentcut");
+            await Task.Delay(100, _sentCutToken.Token);
         }
 
-        public void InvokePaste()
+        public async Task InvokePasteAsync()
         {
-            _ahkEngine.ExecRaw("SendInput ^v");
+            _sentPasteToken = new CancellationTokenSource();
+            _ahkEngine.ExecRaw("SendInput ^v\nRun,Pastr.Messaging.exe sentpaste");
+            await Task.Delay(100, _sentPasteToken.Token);
         }
     }
 }
