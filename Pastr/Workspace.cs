@@ -1,19 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace Pastr
 {
     public static class Workspace
     {
-        public static DirectoryInfo Root { get; private set; }
+        private static DirectoryInfo Root { get; set; }
 
-        public static string LogFilePath
-        {
-            get { return Path.Combine(Root.FullName, "log.txt"); }
-        }
+        public static string LogFilePath => Path.Combine(Root.FullName, "log.txt");
 
         static Workspace()
         {

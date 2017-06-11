@@ -37,8 +37,8 @@
     <Reference Include="AutoHotkey.Interop">
       <HintPath>..\lib\AutoHotkey.Interop\AutoHotkey.Interop.dll</HintPath>
     </Reference>
-    <Reference Include="NamedPipeWrapper, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NamedPipeWrapper.1.4.0\lib\net40\NamedPipeWrapper.dll</HintPath>
+    <Reference Include="NamedPipeWrapper, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NamedPipeWrapper.1.5.0\lib\net40\NamedPipeWrapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

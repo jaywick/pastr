@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
 using WinForms = System.Windows.Forms;
 
@@ -10,15 +6,15 @@ namespace Pastr
 {
     public class TrayIcon
     {
-        private MainWindow mainWindow;
-        private WinForms.NotifyIcon notifyIcon;
-        private string _versionInfo;
+        private readonly MainWindow mainWindow;
+        private readonly WinForms.NotifyIcon notifyIcon;
+        private readonly string _versionInfo;
 
         public TrayIcon(MainWindow parent)
         {
             mainWindow = parent;
 
-            _versionInfo = String.Format("Pastr {0} by Jay Wick Labs", Common.GetVersionInfo());
+            _versionInfo = $"Pastr {Common.GetVersionInfo()} by Jay Wick Labs";
 
             notifyIcon = new WinForms.NotifyIcon();
             notifyIcon.MouseUp += Notify_Click;
@@ -61,7 +57,7 @@ namespace Pastr
         // thanks to @StanislavKniazev http://stackoverflow.com/a/430909/80428
         private System.Drawing.Icon CreateIcon(ImageSource source)
         {
-            string path = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+            var path = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
 
             try
             {
@@ -74,7 +70,7 @@ namespace Pastr
             }
         }
 
-        public void Remove()
+        private void Remove()
         {
             notifyIcon.Visible = false;
         }

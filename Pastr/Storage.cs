@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Pastr.Extensions;
 
 namespace Pastr
 {
     public class Storage
     {
         private LinkedList<string> _items = new LinkedList<string>();
-        private Events _events;
+        private readonly Events _events;
 
         public Storage(Events events)
         {
@@ -109,10 +105,7 @@ namespace Pastr
             _items = new LinkedList<string>(_items.Take(1));
         }
 
-        public IEnumerable<string> Items
-        {
-            get { return _items; }
-        }
+        public IEnumerable<string> Items => _items;
 
         private async Task<string> Copy()
         {
@@ -134,14 +127,14 @@ namespace Pastr
 
         private string GetCurrentClipboard()
         {
-            return Common.RunInSTA(() => Clipboard.GetText());
+            return Common.RunInSTA(Clipboard.GetText);
         }
 
         private void SetCurrentClipboard(string value)
         {
             Common.RunInSTA(() =>
             {
-                if (String.IsNullOrEmpty(value))
+                if (string.IsNullOrEmpty(value))
                 {
                     Clipboard.Clear();
                     return "";

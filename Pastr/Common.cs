@@ -1,15 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pastr
 {
-    public class Common
+    public static class Common
     {
         public static string GetVersionInfo()
         {
@@ -31,7 +30,6 @@ namespace Pastr
         public static TResult RunInSTA<TResult>(Func<TResult> target) where TResult : class
         {
             TResult returnValue = default(TResult);
-            Exception threadEx = null;
 
             var staThread = new Thread(() =>
             {
@@ -41,7 +39,7 @@ namespace Pastr
                 }
                 catch (Exception ex)
                 {
-                    threadEx = ex;
+                    Console.WriteLine($"{ex.GetType().Name}: {ex.Message}");
                 }
             });
 
@@ -50,6 +48,14 @@ namespace Pastr
             staThread.Join();
 
             return returnValue;
+        }
+
+        public static TValue GetValueOrDefault<TKey, TValue>(this Dictionary<TKey, TValue> lookup, TKey key)
+        {
+            if (!lookup.ContainsKey(key))
+                return default(TValue);
+
+            return lookup[key];
         }
     }
 }
